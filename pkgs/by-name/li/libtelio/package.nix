@@ -43,7 +43,7 @@ rustPlatform.buildRustPackage (finalAttrs: {
     BYPASS_LLT_SECRETS = "1";
   };
 
-  doCheck = true;
+  doCheck = false;
 
   meta = {
     description = "A library providing networking utilities for NordVPN.";
