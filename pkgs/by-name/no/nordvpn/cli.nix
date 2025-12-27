@@ -11,12 +11,15 @@
   iproute2,
   iptables,
   lib,
+  libdrop,
+  libtelio,
   libxslt,
   makeDesktopItem,
   makeWrapper,
   openvpn,
   pkg-config,
   procps,
+  sqlite,
   systemdMinimal,
   wireguard-tools,
 }:
@@ -57,6 +60,12 @@ buildGoModule (finalAttrs: {
     pkg-config
   ];
 
+  buildInputs = [
+    libdrop
+    libtelio
+    sqlite
+  ];
+
   vendorHash = "sha256-outOvVAu76Pa9lQbiXQP2wA2cee3Ofq41SwfL6JEKs0=";
 
   preBuild = ''
@@ -76,9 +85,15 @@ buildGoModule (finalAttrs: {
     "-X main.Version=${finalAttrs.version}"
   ];
 
+  tags = [
+    "drop"
+    "telio"
+  ];
+
   subPackages = [
     "cmd/cli"
     "cmd/daemon"
+    "cmd/fileshare"
     "cmd/norduser"
   ];
 
@@ -91,6 +106,7 @@ buildGoModule (finalAttrs: {
     # skip tests that require network access
     go test ./daemon -skip \
         'TestTransports|TestH1Transport_RoundTrip|Test.*FileList_RealURL'
+    go test ./fileshare
     go test ./norduser
 
     runHook postCheck
@@ -101,8 +117,9 @@ buildGoModule (finalAttrs: {
     BIN_DIR=$out/bin
     install $BIN_DIR/cli $BIN_DIR/nordvpn
     install $BIN_DIR/daemon $BIN_DIR/nordvpnd
+    install $BIN_DIR/fileshare $BIN_DIR/nordfileshare
     install $BIN_DIR/norduser $BIN_DIR/norduserd
-    rm $BIN_DIR/{cli,daemon,norduser}
+    rm $BIN_DIR/{cli,daemon,nordfileshare,norduser}
 
     # nordvpn needs icons for the system tray and notifications
     ICONS_PATH=$out/share/icons/hicolor/scalable/apps
