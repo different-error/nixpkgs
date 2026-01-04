@@ -88,6 +88,7 @@ buildGoModule (finalAttrs: {
   tags = [
     "drop"
     "telio"
+    "cdnrc"
   ];
 
   subPackages = [
