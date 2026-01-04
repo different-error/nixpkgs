@@ -166,6 +166,20 @@ in
       wants = [ "network-online.target" ];
     };
 
+    systemd.user.services.nordvpn-fileshare = {
+      after = [ "norduserd.service" ];
+      description = "NordVPN Fileshare Service";
+      serviceConfig = {
+        ExecStart = lib.getExe' cfg.package.cli "fileshare";
+        NonBlocking = true;
+        Restart = "on-failure";
+        RestartSec = 5;
+        Type = "simple";
+      };
+      wantedBy = [ "graphical-session.target" ];
+      requires = [ "norduserd.service" ];
+    };
+
   };
 
   meta = {
