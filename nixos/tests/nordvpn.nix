@@ -109,6 +109,9 @@
         self.verify_nordvpnd_runtime_directory()
         self.verify_nordvpnd_state_directory()
 
+        # nordfileshare related tests
+        self.verify_fileshare_socket()
+
         self.machine.shutdown()
 
       def verify_nordvpn_user(self):
@@ -160,11 +163,11 @@
             key, value = line.split(":")
             caps[key.strip()] = int(value.strip(), base=16)
 
-        # CAP_NET_ADMIN (bit 12)
-        expected = (1 << 12)
+        # CAP_NET_ADMIN (bit 12) and CAP_NET_RAW (bit 13)
+        expected = (1 << 12) | (1 << 13)
         for cap_set in ["CapAmb", "CapBnd", "CapEff", "CapPrm"]:
           assert caps[cap_set] == expected, (
-            f"expected {cap_set} to be exactly CAP_NET_ADMIN"
+            f"expected {cap_set} to be exactly CAP_NET_ADMIN|CAP_NET_RAW "
             f"({expected:#x}), got {caps[cap_set]:#x}"
           )
 

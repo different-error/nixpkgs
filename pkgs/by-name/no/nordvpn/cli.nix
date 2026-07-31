@@ -5,6 +5,7 @@
   version,
 
   buildGoModule,
+  callPackage,
   copyDesktopItems,
   e2fsprogs,
   fetchFromGitHub,
@@ -16,10 +17,15 @@
   nftables,
   openvpn,
   procps,
+  sqlite,
   systemdMinimal,
   wireguard-tools,
 }:
 let
+  libdrop = callPackage ./libdrop { };
+
+  libtelio = callPackage ./libtelio { };
+
   patchedOpenvpn = openvpn.overrideAttrs (old: {
     # Apply XOR obfuscation patches to disguise OpenVPN traffic,
     # enabling connectivity on networks that block VPN protocols via DPI.
@@ -56,7 +62,13 @@ buildGoModule (finalAttrs: {
     makeWrapper
   ];
 
-  vendorHash = "sha256-I81sn+tHTny9bX5eNGQLPQtoabbaNZINMjYotCXt88A=";
+  buildInputs = [
+    libdrop
+    libtelio
+    sqlite
+  ];
+
+  vendorHash = "sha256-9KV2pfnavMd28/s23tQ7uEzk7S6TX90NO11j5mrw7vs=";
 
   preBuild = ''
     # redirect AppDataPathStatic (/usr/lib/nordvpn) to $out/bin so that
@@ -72,13 +84,21 @@ buildGoModule (finalAttrs: {
   '';
 
   ldflags = [
-    "-X main.Environment=prod"
+    "-X main.Environment=dev"
     "-X main.Version=${finalAttrs.version}"
+    "-X main.RemotePath=/apps/linux/config"
+  ];
+
+  tags = [
+    "cdnrc"
+    "drop"
+    "telio"
   ];
 
   subPackages = [
     "cmd/cli"
     "cmd/daemon"
+    "cmd/fileshare"
     "cmd/norduser"
   ];
 
@@ -89,6 +109,7 @@ buildGoModule (finalAttrs: {
     # skip tests that require network access
     go test ./daemon -skip \
         'TestTransports|TestH1Transport_RoundTrip|Test.*FileList_RealURL'
+    go test ./fileshare
     go test ./norduser
 
     runHook postCheck
@@ -99,6 +120,7 @@ buildGoModule (finalAttrs: {
     BIN_DIR=$out/bin
     mv $BIN_DIR/cli $BIN_DIR/nordvpn
     mv $BIN_DIR/daemon $BIN_DIR/nordvpnd
+    mv $BIN_DIR/fileshare $BIN_DIR/nordfileshare
     mv $BIN_DIR/norduser $BIN_DIR/norduserd
 
     # nordvpn needs icons for the system tray and notifications

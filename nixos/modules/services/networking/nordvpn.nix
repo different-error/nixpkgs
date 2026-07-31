@@ -82,6 +82,15 @@ in
     # nordvpnd uses resolved to configure dns
     services.resolved.enable = true;
 
+    networking.firewall = {
+      # fwmark does not transfer to response packets
+      # the outbound route rule and inbout route rule thus can differ
+      checkReversePath = "loose";
+      # encrypted tunnels with the server and with other meshnet peers
+      # can trust those
+      trustedInterfaces = [ "nordlynx" ];
+    };
+
     # policy that allows nordvpnd to configure dns
     security.polkit = {
       enable = true;
@@ -121,16 +130,19 @@ in
       );
       serviceConfig = {
         # nordvpnd needs CAP_NET_ADMIN to configure network interfaces.
+        # libtelio needs CAP_NET_RAW for ping.
         AmbientCapabilities = [
           "CAP_NET_ADMIN"
+          "CAP_NET_RAW"
         ];
         CapabilityBoundingSet = [
           "CAP_NET_ADMIN"
+          "CAP_NET_RAW"
         ];
         DeviceAllow = [
           "/dev/net/tun rw"
         ];
-        ExecStart = lib.getExe' nordvpn "nordvpnd";
+        ExecStart = "${lib.getExe' nordvpn "nordvpnd"} --hosts-readonly";
         Group = cfg.group;
         KillMode = "process";
         ProtectControlGroups = true;
@@ -182,7 +194,7 @@ in
         Restart = "on-failure";
         RestartSec = 5;
       };
-      wantedBy = [ "graphical-session.target" ];
+      wantedBy = [ "default.target" ];
       wants = [ "network-online.target" ];
     };
   };

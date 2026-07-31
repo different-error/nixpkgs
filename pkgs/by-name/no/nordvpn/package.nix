@@ -6,22 +6,23 @@
   symlinkJoin,
 }:
 let
-  version = "5.2.0";
+  version = "5.3.0-meshnet-pepper";
+  rev = "380a440ddee638ad1b0783d36b077f07aaa7f907";
 
   common = {
     inherit version;
 
     src = fetchFromGitHub {
-      owner = "NordSecurity";
+      owner = "different-error";
       repo = "nordvpn-linux";
-      tag = version;
-      hash = "sha256-F7iw856HVLbOz97j9sMkVwyZl0ZDwID1Tf0YwtdvZsU=";
+      inherit rev;
+      hash = "sha256-YURjHMjBpxQIJpT3xC4AhyMKcgvKQKLTtQYm7kApGbk=";
     };
 
     # rec so that changelog can reference homepage
     meta = rec {
-      homepage = "https://github.com/NordSecurity/nordvpn-linux";
-      changelog = "${homepage}/releases/tag/${version}";
+      homepage = "https://github.com/different-error/nordvpn-linux";
+      changelog = "${homepage}/commit/${rev}";
       license = lib.licenses.gpl3Only;
       maintainers = with lib.maintainers; [ different-error ];
       platforms = lib.platforms.linux;
@@ -65,10 +66,7 @@ symlinkJoin {
     description = "NordVPN client and GUI for Linux";
     longDescription = ''
       NordVPN CLI and GUI applications for Linux.
-      This package currently does not support meshnet.
-      Additionally, if `networking.firewall.enable = true;`,
-      then also set `networking.firewall.checkReversePath = "loose";`.
-      The closed-source nordwhisper protocol is also not supported.
+      This package does not support the closed-source nordwhisper protocol.
     '';
   };
 }

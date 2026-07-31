@@ -12,12 +12,9 @@ A minimal configuration in NixOS appears as follows:
 ```nix
 {
   services.nordvpn.enable = true;
-  networking.firewall.enable = true;
-  networking.firewall.checkReversePath = "loose";
 }
 ```
 
-When using a firewall, set `networking.firewall.checkReversePath` to `"loose"` or `false`.
 NordVPN includes a `kill-switch` feature that blocks all packets not associated with the VPN connection.
 
 If you prefer to use your own user and group, you can do so using
@@ -68,6 +65,11 @@ Some notes on where the NixOS nordvpn service differs from upstream:
 - `norduserd` spawns as a user service
 - `nordvpnd`'s systemd unit applies additional sandboxing,
 further minimizing its blast radius
+
+Additionally, *this* service:
+
+- sets the firewall `checkReversePath` check to `loose`
+- adds `nordlynx` to the firewall's `trustedInterfaces`
 
 **Disclaimer:** NixOS currently does not support meshnet.
 Contributions welcome!
