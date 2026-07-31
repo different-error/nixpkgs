@@ -6,22 +6,23 @@
   symlinkJoin,
 }:
 let
-  version = "5.2.0";
+  version = "5.2.0-pepper";
+  rev = "8648697788c18fa5f8da8f9d3c8936bfd0ff2704";
 
   common = {
     inherit version;
 
     src = fetchFromGitHub {
-      owner = "NordSecurity";
+      owner = "different-error";
       repo = "nordvpn-linux";
-      tag = version;
-      hash = "sha256-F7iw856HVLbOz97j9sMkVwyZl0ZDwID1Tf0YwtdvZsU=";
+      inherit rev;
+      hash = "sha256-gH6Zxt/DduY4xyh6hP2mrrNNCCxCWcJG/xZytFXZfuA=";
     };
 
     # rec so that changelog can reference homepage
     meta = rec {
-      homepage = "https://github.com/NordSecurity/nordvpn-linux";
-      changelog = "${homepage}/releases/tag/${version}";
+      homepage = "https://github.com/different-error/nordvpn-linux";
+      changelog = "${homepage}/commit/${rev}";
       license = lib.licenses.gpl3Only;
       maintainers = with lib.maintainers; [ different-error ];
       platforms = lib.platforms.linux;

@@ -121,16 +121,19 @@ in
       );
       serviceConfig = {
         # nordvpnd needs CAP_NET_ADMIN to configure network interfaces.
+        # libtelio needs CAP_NET_RAW for ping.
         AmbientCapabilities = [
           "CAP_NET_ADMIN"
+          "CAP_NET_RAW"
         ];
         CapabilityBoundingSet = [
           "CAP_NET_ADMIN"
+          "CAP_NET_RAW"
         ];
         DeviceAllow = [
           "/dev/net/tun rw"
         ];
-        ExecStart = lib.getExe' nordvpn "nordvpnd";
+        ExecStart = "${lib.getExe' nordvpn "nordvpnd"} --hosts-readonly";
         Group = cfg.group;
         KillMode = "process";
         ProtectControlGroups = true;
